@@ -19,5 +19,5 @@ name = "cli"
 path = "src/cli/bin/main.rs"
 
 [[bin]]
-name = "server"
-path = "src/server/bin/main.rs"
+name = "http"
+path = "src/http/bin/main.rs"
