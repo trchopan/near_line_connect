@@ -27,43 +27,82 @@ impl Contract {
         }
     }
 
-    pub fn get_line_id(&mut self, wallet: AccountId) -> Option<LineId >{
-        self.line_id_by_wallet.get(&wallet)
-    }
-
     #[payable]
     pub fn set_public_key(&mut self, public_key: String) {
         assert_eq!(env::predecessor_account_id(), self.owner_id, "Unauthorized");
         self.public_key = public_key;
     }
 
+    pub fn get_line_id_by_wallet(&self, wallet: AccountId) -> Option<LineId> {
+        self.line_id_by_wallet.get(&wallet)
+    }
+
     #[payable]
-    pub fn record_wallet_by_line_id(
+    pub fn record_line_id_by_wallet(
         &mut self,
         signature: String,
         line_id: LineId,
         wallet: AccountId,
         expire: u64,
     ) -> String {
-        use ed25519_dalek::Verifier;
-        use ed25519_dalek::{PublicKey, Signature};
-
-        let signature_bytes = hex::decode(signature).expect("Cannot decode signature");
-        let signature_ =
-            Signature::from_bytes(&signature_bytes).expect("Cannot create signature from bytes");
-        let public_key_decode = hex::decode(&self.public_key).expect("Cannot decode public_key");
-        let public_key =
-            PublicKey::from_bytes(&public_key_decode).expect("Cannot create public_key bytes");
-
         let message = format!("{}{}{}", line_id, wallet, expire);
-        let verify = public_key.verify(message.as_bytes(), &signature_);
+        let verify = self.validate(&signature, message.as_bytes());
         assert!(verify.is_ok(), "Verify failed");
+
         let current_timestamp = block_timestamp_ms();
-        assert!(expire > current_timestamp, "Expired. block_timestamp_ms {}", current_timestamp);
+        assert!(
+            expire > current_timestamp,
+            "Expired. block_timestamp_ms {}",
+            current_timestamp
+        );
 
         self.line_id_by_wallet.insert(&wallet, &line_id);
 
         "Success".to_string()
+    }
+
+    #[payable]
+    pub fn remove_line_id_by_wallet(
+        &mut self,
+        signature: String,
+        line_id: LineId,
+        wallet: AccountId,
+        expire: u64,
+    ) -> String {
+        let message = format!("{}{}{}", line_id, wallet, expire);
+        let verify = self.validate(&signature, message.as_bytes());
+        assert!(verify.is_ok(), "Verify failed");
+
+        let current_timestamp = block_timestamp_ms();
+        assert!(
+            expire > current_timestamp,
+            "Expired. block_timestamp_ms {}",
+            current_timestamp
+        );
+
+        match self.line_id_by_wallet.remove(&wallet) {
+            None => "Failed".to_string(),
+            Some(_) => "Success".to_string(),
+        }
+    }
+
+    fn validate(
+        &self,
+        signature: &String,
+        message: &[u8],
+    ) -> Result<(), ed25519_dalek::ed25519::Error> {
+        use ed25519_dalek::Verifier;
+        use ed25519_dalek::{PublicKey, Signature};
+
+        let public_key_decode = hex::decode(&self.public_key).expect("Cannot decode public_key");
+        let public_key =
+            PublicKey::from_bytes(&public_key_decode).expect("Cannot create public_key bytes");
+
+        let signature_bytes = hex::decode(signature).expect("Cannot decode signature");
+        let signature_ =
+            Signature::from_bytes(&signature_bytes).expect("Cannot create signature from bytes");
+
+        public_key.verify(message, &signature_)
     }
 }
 
@@ -92,7 +131,10 @@ mod tests {
         let owner_id: AccountId = "test.testnet".parse().unwrap();
         let contract = Contract::new(owner_id, "1234567".to_string());
         testing_env!(context.is_view(true).build());
-        assert_eq!(contract.line_id_by_wallet.get(&"some".to_string()), None);
+        assert_eq!(
+            contract.line_id_by_wallet.get(&"some".parse().unwrap()),
+            None
+        );
         assert_eq!(contract.public_key, "1234567");
     }
 }
