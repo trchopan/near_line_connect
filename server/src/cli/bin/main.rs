@@ -6,22 +6,8 @@ use ed25519_dalek::Keypair;
 use ed25519_dalek::Verifier;
 use ed25519_dalek::{PublicKey, SecretKey};
 use ed25519_dalek::{Signature, Signer};
+use near_line_connect::{KeyFile, KeyScheme, read_key_file};
 use rand::rngs::OsRng;
-
-use serde::{Serialize, Deserialize};
-
-#[derive(Serialize, Deserialize)]
-enum KeyScheme {
-    Ed25519Public,
-    Ed25519Secret,
-    Unknown(String),
-}
-
-#[derive(Serialize, Deserialize)]
-struct KeyFile {
-    name: KeyScheme,
-    hex: String,
-}
 
 /// Handle deriving VRF public key
 #[derive(Parser, Debug)]
@@ -73,11 +59,6 @@ enum Commands {
         #[clap(long, value_parser)]
         message: String,
     },
-}
-
-fn read_key_file(fp: std::path::PathBuf) -> KeyFile {
-    let contents = fs::read_to_string(fp).expect("Something went wrong reading the file");
-    serde_json::from_str::<KeyFile>(&contents).expect("Cannot parse key file")
 }
 
 fn main() {
