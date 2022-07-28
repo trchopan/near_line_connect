@@ -1,5 +1,5 @@
 [package]
-name = "near-line"
+name = "near_line_connect_contract"
 version = "0.0.1"
 authors = [ "Chop Tr (chop.ink) <chop@chop.ink>" ]
 edition = "2018"

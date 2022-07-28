@@ -1340,17 +1340,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "near-line"
-version = "0.0.1"
-dependencies = [
- "ed25519-dalek",
- "elliptic-curve",
- "getrandom 0.2.7",
- "hex",
- "near-sdk",
-]
-
-[[package]]
 name = "near-primitives"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1490,7 +1479,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "near_line_connect"
+name = "near_line_connect_contract"
+version = "0.0.1"
+dependencies = [
+ "ed25519-dalek",
+ "elliptic-curve",
+ "getrandom 0.2.7",
+ "hex",
+ "near-sdk",
+]
+
+[[package]]
+name = "near_line_connect_server"
 version = "0.1.0"
 dependencies = [
  "actix-cors",

@@ -13,7 +13,7 @@ use ed25519_dalek::Keypair;
 use ed25519_dalek::Signer;
 use ed25519_dalek::{PublicKey, SecretKey};
 use env_logger::Env;
-use near_line_connect::{read_key_file, KeyFile};
+use near_line_connect_server::{read_key_file, KeyFile};
 use reqwest::header::AUTHORIZATION;
 use rusqlite::{self, Connection, Result};
 use serde::{Deserialize, Serialize};
@@ -231,7 +231,7 @@ async fn main() -> std::io::Result<()> {
             .service(remove_line_profile)
             .service(get_line_profile)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }

@@ -1,6 +1,6 @@
 [package]
 authors = ["Chop Tr (chop@chop.ink)"]
-name = "near_line_connect"
+name = "near_line_connect_server"
 version = "0.1.0"
 edition = "2021"
 

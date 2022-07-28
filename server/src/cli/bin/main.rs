@@ -6,7 +6,7 @@ use ed25519_dalek::Keypair;
 use ed25519_dalek::Verifier;
 use ed25519_dalek::{PublicKey, SecretKey};
 use ed25519_dalek::{Signature, Signer};
-use near_line_connect::{KeyFile, KeyScheme, read_key_file};
+use near_line_connect_server::{KeyFile, KeyScheme, read_key_file};
 use rand::rngs::OsRng;
 
 /// Handle deriving VRF public key
