@@ -9,7 +9,6 @@ overflow-checks = true
 
 [workspace]
 members = [
-  "server",
-  # remember to include a member for each contract
-  "near-line"
+  "near_line_connect_contract",
+  "near_line_connect_server"
 ]
