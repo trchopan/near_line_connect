@@ -14,6 +14,7 @@ use ed25519_dalek::Signer;
 use ed25519_dalek::{PublicKey, SecretKey};
 use env_logger::Env;
 use near_line_connect_server::{read_key_file, KeyFile};
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use reqwest::header::AUTHORIZATION;
 use rusqlite::{self, Connection, Result};
 use serde::{Deserialize, Serialize};
@@ -222,6 +223,12 @@ async fn main() -> std::io::Result<()> {
         conn: Mutex::new(conn),
     });
 
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder
+        .set_private_key_file("key.pem", SslFiletype::PEM)
+        .unwrap();
+    builder.set_certificate_chain_file("cert.pem").unwrap();
+
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
@@ -231,7 +238,7 @@ async fn main() -> std::io::Result<()> {
             .service(remove_line_profile)
             .service(get_line_profile)
     })
-    .bind(("0.0.0.0", 8080))?
+    .bind_openssl("0.0.0.0:8080", builder)?
     .run()
     .await
 }
