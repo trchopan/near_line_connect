@@ -22,7 +22,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-/// Handle deriving VRF public key
+/// API Server for Near Line Connect app
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
@@ -42,7 +42,7 @@ struct Args {
     #[clap(long, value_parser)]
     db: std::path::PathBuf,
 
-    /// port to serve the server
+    /// the serving addr for the server. Example: 127.0.0.1:5000
     #[clap(long, value_parser)]
     addr: String,
 }
@@ -202,6 +202,7 @@ async fn get_line_profile(
 #[actix_web::main] // or #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let args = Args::parse();
+
     let secret_key_file: KeyFile = read_key_file(args.secret_key);
     let secret_key_string = hex::decode(secret_key_file.hex).expect("Cannot decode secret_key");
     let secret_key =
